@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="abe">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/classes/artifacts/abe_jar/abe.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
