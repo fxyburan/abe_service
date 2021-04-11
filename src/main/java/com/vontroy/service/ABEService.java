@@ -1,10 +1,13 @@
 package com.vontroy.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.vontroy.common.abe_source.component.Decryptor;
+import com.vontroy.common.abe_source.component.Encryptor;
 import com.vontroy.common.abe_source.component.KGC;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by vontroy on 7/15/17.
@@ -74,6 +77,52 @@ public class ABEService {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("SK", jsonSK);
+        return jsonObject.toString();
+    }
+
+    @POST
+    @Path("/encrypt")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String encrypt(@FormParam("message") String message,
+                          @FormParam("policy") String policy,
+                          @FormParam("sid") String sid) {
+        Encryptor encryptor = new Encryptor(sid);
+        String ciphertext = null;
+        try {
+            ciphertext = encryptor.encrypt(policy, publicKey, message, "abeTest".getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        if (ciphertext != null) {
+            jsonObject.put("ct", ciphertext);
+            return jsonObject.toString();
+        }
+        jsonObject.put("ct", "error");
+        return jsonObject.toString();
+    }
+
+    @POST
+    @Path("/decrypt")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String decrypt(@FormParam("ct") String ciphertext,
+                          @FormParam("sid") String sid,
+                          @FormParam("sk") String sk) {
+        Decryptor decryptor = new Decryptor(sid);
+        String msg = null;
+        try {
+            msg = new String(decryptor.decrypt(ciphertext, sk), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        if (msg != null) {
+            jsonObject.put("msg", msg);
+            return jsonObject.toString();
+        }
+        jsonObject.put("msg", "error");
         return jsonObject.toString();
     }
 
